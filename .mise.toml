@@ -1,0 +1,23 @@
+[tools]
+node = "24"
+npm = "latest"
+
+[tasks.install]
+description = "install npm dependencies"
+run = "npm ci"
+
+[tasks.dev]
+description = "run React Router dev server"
+run = "npm run dev"
+
+[tasks.build]
+description = "build production bundle"
+run = "npm run build"
+
+[tasks.start]
+description = "serve production build"
+run = "npm run start"
+
+[tasks.typecheck]
+description = "generate routes types and run TypeScript"
+run = "npm run typecheck"

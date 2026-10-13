@@ -11,6 +11,7 @@ yarn-error.log*
 build/
 dist/
 out/
+.react-router/
 
 .eslintcache
 .parcel-cache

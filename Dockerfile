@@ -1,23 +1,33 @@
-FROM --platform=$BUILDPLATFORM node:24-alpine AS development-dependencies-env
+FROM oven/bun:1-alpine AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
-FROM --platform=$BUILDPLATFORM node:24-alpine AS build-env
+FROM oven/bun:1-alpine AS build
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-COPY --from=development-dependencies-env /app/node_modules ./node_modules
-RUN npm run build
+RUN bun run build
 
-FROM node:24-alpine AS production-dependencies-env
+FROM oven/bun:1-alpine AS prod-deps
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --production
 
-FROM node:24-alpine
+FROM oven/bun:1-alpine AS runner
 WORKDIR /app
-COPY package.json package-lock.json ./
-COPY --from=production-dependencies-env /app/node_modules ./node_modules
-COPY --from=build-env /app/build ./build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-CMD ["npm", "run", "start"]
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/next.config.ts ./next.config.ts
+COPY --from=build /app/public ./public
+COPY --from=build /app/.next ./.next
+
+EXPOSE 3000
+
+CMD ["bun", "run", "start"]

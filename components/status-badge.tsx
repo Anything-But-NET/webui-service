@@ -1,10 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type {
+  ChatChannel,
   ErrorCategory,
   GenerationOutcome,
   OperatorAuthority,
   OperatorStatus,
+  QuestionOutcomeReasonCode,
   SyncStatus,
 } from "@/lib/types";
 
@@ -52,17 +54,53 @@ export function SyncStatusBadge({ status }: { status: SyncStatus }) {
   return <StatusBadge label={status} tone={SYNC_STATUS_TONE[status]} />;
 }
 
+const GENERATION_OUTCOME_TONE: Record<GenerationOutcome, Tone> = {
+  ANSWERED: "success",
+  SAFE_NO_ANSWER: "warning",
+  ESCALATED: "brand",
+  FAILURE: "destructive",
+};
+
 export function GenerationOutcomeBadge({
   outcome,
 }: {
   outcome: GenerationOutcome;
 }) {
   return (
-    <StatusBadge
-      label={outcome}
-      tone={outcome === "SUCCESS" ? "success" : "destructive"}
-    />
+    <StatusBadge label={outcome} tone={GENERATION_OUTCOME_TONE[outcome]} />
   );
+}
+
+const REASON_CODE_TONE: Record<QuestionOutcomeReasonCode, Tone> = {
+  LOW_CONFIDENCE: "warning",
+  EMPTY_RETRIEVAL: "info",
+};
+
+export function ReasonCodeBadge({
+  reasonCode,
+}: {
+  reasonCode: QuestionOutcomeReasonCode | null;
+}) {
+  if (!reasonCode) {
+    return <span className="text-xs text-muted-foreground font-mono">—</span>;
+  }
+  return <StatusBadge label={reasonCode} tone={REASON_CODE_TONE[reasonCode]} />;
+}
+
+const CHANNEL_TONE: Record<ChatChannel, Tone> = {
+  SLACK: "info",
+  TEAMS: "brand",
+};
+
+export function ChatChannelBadge({
+  channel,
+}: {
+  channel: ChatChannel | null;
+}) {
+  if (!channel) {
+    return <span className="text-xs text-muted-foreground font-mono">—</span>;
+  }
+  return <StatusBadge label={channel} tone={CHANNEL_TONE[channel]} />;
 }
 
 export function ErrorCategoryBadge({

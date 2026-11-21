@@ -19,6 +19,8 @@ export default function Navbar() {
   const { user, logout } = useSession();
 
   const authorities = new Set(user?.authorities ?? []);
+  const canAnalytics = authorities.has("ANALYTICS");
+  const canPrompts = authorities.has("PROMPTS");
   const canMetadata = authorities.has("METADATA");
   const canLogs = authorities.has("LOGS");
   const canUsers = authorities.has("USERS");
@@ -33,13 +35,35 @@ export default function Navbar() {
             className="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground hover:text-brand transition-colors"
           >
             <span className="font-heading text-base tracking-normal">
-              STAR Copilot
+              SoVa Copilot
             </span>
           </Link>
 
           {user && (
             <NavigationMenu>
               <NavigationMenuList>
+                {canAnalytics && (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      active={pathname.startsWith("/analytics")}
+                      render={<Link href="/analytics" />}
+                    >
+                      Analytics
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )}
+
+                {canPrompts && (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      active={pathname.startsWith("/prompts")}
+                      render={<Link href="/prompts" />}
+                    >
+                      Prompts
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )}
+
                 {canMetadata && (
                   <NavigationMenuItem>
                     <NavigationMenuLink

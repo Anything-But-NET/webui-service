@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "STAR Copilot — Dashboard",
+  title: "SoVa Copilot — Dashboard",
   description: "Enterprise Knowledge & Support Copilot diagnostics and access control.",
 };
 

@@ -32,11 +32,7 @@ async function UsersContent({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Access Control"
-        title="Users & ACLs"
-        description="Synchronized end-user directory and group permissions."
-      />
+      <PageHeader title="Users & ACLs" />
 
       <div className="border border-border bg-card">
         <Table>

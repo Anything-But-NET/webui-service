@@ -36,11 +36,7 @@ async function DocumentsContent({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Corpus Metadata"
-        title="Documents"
-        description="Indexed knowledge base documents synchronized from upstream connectors."
-      />
+      <PageHeader title="Documents" />
 
       <div className="border border-border bg-card">
         <Table>

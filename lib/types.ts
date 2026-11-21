@@ -5,7 +5,15 @@ export type SyncStatus =
   | "FAILED_PARSE"
   | "FAILED_STORAGE";
 
-export type GenerationOutcome = "SUCCESS" | "FAILURE";
+export type GenerationOutcome =
+  | "ANSWERED"
+  | "SAFE_NO_ANSWER"
+  | "ESCALATED"
+  | "FAILURE";
+
+export type ChatChannel = "SLACK" | "TEAMS";
+
+export type QuestionOutcomeReasonCode = "LOW_CONFIDENCE" | "EMPTY_RETRIEVAL";
 
 export type ErrorCategory =
   | "VALIDATION_ERROR"
@@ -15,7 +23,13 @@ export type ErrorCategory =
   | "INTERNAL_ERROR"
   | "INTERNAL_CONNECTION_ERROR";
 
-export type OperatorAuthority = "LOGS" | "METADATA" | "USERS" | "OPERATORS";
+export type OperatorAuthority =
+  | "LOGS"
+  | "METADATA"
+  | "USERS"
+  | "OPERATORS"
+  | "ANALYTICS"
+  | "PROMPTS";
 
 export type OperatorStatus = "ACTIVE" | "BLOCKED";
 
@@ -59,10 +73,15 @@ export interface IngestionLogItem {
 export interface GenerationLogItem {
   id: string;
   query_id: string;
+  channel: ChatChannel | null;
   outcome: GenerationOutcome;
+  reason_code: QuestionOutcomeReasonCode | null;
   error_category: ErrorCategory | null;
   confidence_score: number | null;
+  latency_ms: number | null;
+  prompt_version_id: string | null;
   created_at: string;
+  updated_at: string | null;
 }
 
 export interface DocumentMetadataItem {
@@ -95,4 +114,63 @@ export interface SessionUser {
   email: string;
   authorities: OperatorAuthority[];
   status: OperatorStatus;
+}
+
+export interface OutcomeCount {
+  outcome: GenerationOutcome;
+  count: number;
+}
+
+export interface ReasonCodeCount {
+  reason_code: QuestionOutcomeReasonCode;
+  count: number;
+}
+
+export interface ErrorCategoryCount {
+  error_category: ErrorCategory;
+  count: number;
+}
+
+export interface ChannelCount {
+  channel: ChatChannel;
+  count: number;
+}
+
+export interface ConfidenceBuckets {
+  high: number;
+  medium: number;
+  low: number;
+}
+
+export interface DailyOutcomePoint {
+  date: string;
+  total_questions: number;
+  outcome_counts: OutcomeCount[];
+}
+
+export interface QuestionOutcomesAnalyticsResponse {
+  from: string | null;
+  to: string | null;
+  total_questions: number;
+  outcome_counts: OutcomeCount[];
+  avg_confidence_score: number | null;
+  confidence_buckets: ConfidenceBuckets;
+  avg_latency_ms: number | null;
+  p95_latency_ms: number | null;
+  reason_code_counts: ReasonCodeCount[];
+  error_category_counts: ErrorCategoryCount[];
+  channel_counts: ChannelCount[];
+  daily_trend: DailyOutcomePoint[];
+}
+
+export interface PromptVersionSummary {
+  id: string;
+  created_at: string;
+}
+
+export interface PromptVersionDetail {
+  id: string;
+  prompt_text: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
 }

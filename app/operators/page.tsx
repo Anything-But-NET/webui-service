@@ -40,11 +40,7 @@ async function OperatorsContent({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Administration"
-        title="Dashboard Operators"
-        description="View operator accounts, assigned authorities, and toggle ACTIVE/BLOCKED status."
-      />
+      <PageHeader title="Dashboard Operators" />
 
       <div className="border border-border bg-card">
         <Table>

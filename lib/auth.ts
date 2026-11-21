@@ -13,6 +13,7 @@ import type {
 export const ACCESS_COOKIE = "dash_access_token";
 export const REFRESH_COOKIE = "dash_refresh_token";
 export const CORE_API_URL = process.env.CORE_API_URL ?? "http://localhost:8080";
+export const RAG_API_URL = process.env.RAG_API_URL ?? "http://localhost:8000";
 
 interface RawAccessClaims {
   sub?: string;
@@ -26,6 +27,8 @@ const VALID_AUTHORITIES = new Set<OperatorAuthority>([
   "METADATA",
   "USERS",
   "OPERATORS",
+  "ANALYTICS",
+  "PROMPTS",
 ]);
 
 function baseCookieOptions(maxAge: number): Partial<ResponseCookie> {

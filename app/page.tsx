@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import {
   Activity,
   ArrowUpRight,
+  BarChart3,
+  FileCode2,
   FileText,
   Shield,
   Sparkles,
@@ -33,6 +35,22 @@ interface DashboardModule {
 }
 
 const MODULES: DashboardModule[] = [
+  {
+    title: "Outcome Analytics",
+    href: "/analytics",
+    authority: "ANALYTICS",
+    description:
+      "Monitor answer rates, safe no-answers, escalations, latency percentiles, and daily trends.",
+    icon: BarChart3,
+  },
+  {
+    title: "Prompt Versions",
+    href: "/prompts",
+    authority: "PROMPTS",
+    description:
+      "Inspect versioned RAG system prompts, model metadata, and per-prompt outcome metrics.",
+    icon: FileCode2,
+  },
   {
     title: "Documents",
     href: "/documents",
@@ -87,11 +105,7 @@ async function DashboardOverview() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Control Plane"
-        title="STAR Copilot Overview"
-        description="Session context and authorized diagnostic modules."
-      />
+      <PageHeader title="SoVa Copilot Overview" />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-4">

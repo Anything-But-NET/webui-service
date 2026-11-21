@@ -68,11 +68,7 @@ async function IngestionLogsContent({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Pipeline Telemetry"
-        title="Ingestion Logs"
-        description="Document synchronization executions, statuses, and ingestion errors."
-      />
+      <PageHeader title="Ingestion Logs" />
 
       <IngestionFilterBar
         key={filterKey}

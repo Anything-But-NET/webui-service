@@ -1,12 +1,15 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ErrorPanel } from "@/components/error-panel";
 import { GenerationFilterBar } from "@/components/logs-filter-bar";
 import { PageHeader, TableSkeleton } from "@/components/page-shell";
 import { PaginationBar } from "@/components/pagination-bar";
 import {
+  ChatChannelBadge,
   ErrorCategoryBadge,
   GenerationOutcomeBadge,
+  ReasonCodeBadge,
 } from "@/components/status-badge";
 import {
   Table,
@@ -27,7 +30,12 @@ import type { ErrorCategory, GenerationOutcome } from "@/lib/types";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-const VALID_OUTCOMES = new Set<GenerationOutcome>(["SUCCESS", "FAILURE"]);
+const VALID_OUTCOMES = new Set<GenerationOutcome>([
+  "ANSWERED",
+  "SAFE_NO_ANSWER",
+  "ESCALATED",
+  "FAILURE",
+]);
 const VALID_ERROR_CATEGORIES = new Set<ErrorCategory>([
   "VALIDATION_ERROR",
   "RETRIEVAL_TIMEOUT",
@@ -77,11 +85,7 @@ async function GenerationLogsContent({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Inference Telemetry"
-        title="Generation Logs"
-        description="RAG synthesis outcomes, confidence scores, and categorized failures."
-      />
+      <PageHeader title="Generation Logs" />
 
       <GenerationFilterBar
         key={filterKey}
@@ -92,14 +96,18 @@ async function GenerationLogsContent({
         size={size}
       />
 
-      <div className="border border-border bg-card">
+      <div className="border border-border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:bg-muted/40">
               <TableHead className="px-4">Query ID</TableHead>
+              <TableHead className="px-4">Channel</TableHead>
               <TableHead className="px-4">Outcome</TableHead>
+              <TableHead className="px-4">Reason</TableHead>
               <TableHead className="px-4">Error Category</TableHead>
               <TableHead className="px-4">Confidence</TableHead>
+              <TableHead className="px-4">Latency</TableHead>
+              <TableHead className="px-4">Prompt</TableHead>
               <TableHead className="px-4">Created</TableHead>
             </TableRow>
           </TableHeader>
@@ -107,7 +115,7 @@ async function GenerationLogsContent({
             {data.items.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={9}
                   className="px-4 py-10 text-center text-muted-foreground"
                 >
                   No generation logs match the current filters.
@@ -120,17 +128,41 @@ async function GenerationLogsContent({
                     {log.query_id}
                   </TableCell>
                   <TableCell className="px-4">
+                    <ChatChannelBadge channel={log.channel} />
+                  </TableCell>
+                  <TableCell className="px-4">
                     <GenerationOutcomeBadge outcome={log.outcome} />
+                  </TableCell>
+                  <TableCell className="px-4">
+                    <ReasonCodeBadge reasonCode={log.reason_code} />
                   </TableCell>
                   <TableCell className="px-4">
                     <ErrorCategoryBadge category={log.error_category} />
                   </TableCell>
-                  <TableCell className="px-4 font-mono text-xs text-foreground">
+                  <TableCell className="px-4 font-mono text-xs text-foreground tabular-nums">
                     {log.confidence_score != null
                       ? log.confidence_score.toFixed(3)
                       : "—"}
                   </TableCell>
-                  <TableCell className="px-4 font-mono text-xs text-muted-foreground">
+                  <TableCell className="px-4 font-mono text-xs text-foreground tabular-nums">
+                    {log.latency_ms != null
+                      ? `${log.latency_ms.toLocaleString("en-US")} ms`
+                      : "—"}
+                  </TableCell>
+                  <TableCell className="px-4 font-mono text-xs">
+                    {log.prompt_version_id ? (
+                      <Link
+                        href={`/prompts/${log.prompt_version_id}`}
+                        className="text-brand hover:underline"
+                        title={log.prompt_version_id}
+                      >
+                        {log.prompt_version_id.slice(0, 8)}
+                      </Link>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-4 font-mono text-xs text-muted-foreground whitespace-nowrap">
                     {formatDateTime(log.created_at)}
                   </TableCell>
                 </TableRow>

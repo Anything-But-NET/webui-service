@@ -1,5 +1,6 @@
-import { getServerSession, CORE_API_URL } from "./auth";
+import { getServerSession, CORE_API_URL, RAG_API_URL } from "./auth";
 import type {
+  ChatChannel,
   DashboardErrorResponse,
   DocumentMetadataItem,
   ErrorCategory,
@@ -8,6 +9,9 @@ import type {
   IngestionLogItem,
   OperatorItem,
   PageResponse,
+  PromptVersionDetail,
+  PromptVersionSummary,
+  QuestionOutcomesAnalyticsResponse,
   SyncStatus,
   UserAclItem,
 } from "./types";
@@ -16,14 +20,18 @@ export type CoreFetchResult<T> =
   | { ok: true; data: T }
   | { ok: false; status: number; message: string };
 
-async function coreGet<T>(path: string): Promise<CoreFetchResult<T>> {
+async function authenticatedGet<T>(
+  baseUrl: string,
+  serviceName: string,
+  path: string
+): Promise<CoreFetchResult<T>> {
   const session = await getServerSession();
   if (!session.accessToken) {
     return { ok: false, status: 401, message: "Authentication required." };
   }
 
   try {
-    const res = await fetch(`${CORE_API_URL}${path}`, {
+    const res = await fetch(`${baseUrl}${path}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
@@ -49,9 +57,17 @@ async function coreGet<T>(path: string): Promise<CoreFetchResult<T>> {
     return {
       ok: false,
       status: 503,
-      message: "Core service is unreachable.",
+      message: `${serviceName} is unreachable.`,
     };
   }
+}
+
+function coreGet<T>(path: string): Promise<CoreFetchResult<T>> {
+  return authenticatedGet<T>(CORE_API_URL, "Core service", path);
+}
+
+function ragGet<T>(path: string): Promise<CoreFetchResult<T>> {
+  return authenticatedGet<T>(RAG_API_URL, "RAG service", path);
 }
 
 function buildQuery(params: Record<string, string | number | undefined>): string {
@@ -88,6 +104,41 @@ export function fetchGenerationLogs(params: {
 }) {
   return coreGet<PageResponse<GenerationLogItem>>(
     `/api/v1/dash/logs/generation${buildQuery(params)}`
+  );
+}
+
+export function fetchQuestionOutcomeAnalytics(params: {
+  from?: string;
+  to?: string;
+  channel?: ChatChannel;
+}) {
+  return coreGet<QuestionOutcomesAnalyticsResponse>(
+    `/api/v1/dash/analytics/outcomes${buildQuery(params)}`
+  );
+}
+
+export function fetchPromptOutcomeAnalytics(
+  promptVersionId: string,
+  params: {
+    from?: string;
+    to?: string;
+    channel?: ChatChannel;
+  }
+) {
+  return coreGet<QuestionOutcomesAnalyticsResponse>(
+    `/api/v1/dash/analytics/prompts/${encodeURIComponent(promptVersionId)}/outcomes${buildQuery(params)}`
+  );
+}
+
+export function fetchPromptVersions(page = 0, size = 20) {
+  return ragGet<PageResponse<PromptVersionSummary>>(
+    `/api/v1/dash/prompts${buildQuery({ page, size })}`
+  );
+}
+
+export function fetchPromptVersionDetail(promptVersionId: string) {
+  return ragGet<PromptVersionDetail>(
+    `/api/v1/dash/prompts/${encodeURIComponent(promptVersionId)}`
   );
 }
 

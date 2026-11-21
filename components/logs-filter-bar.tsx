@@ -27,7 +27,12 @@ const SYNC_STATUSES: SyncStatus[] = [
   "FAILED_STORAGE",
 ];
 
-const GENERATION_OUTCOMES: GenerationOutcome[] = ["SUCCESS", "FAILURE"];
+const GENERATION_OUTCOMES: GenerationOutcome[] = [
+  "ANSWERED",
+  "SAFE_NO_ANSWER",
+  "ESCALATED",
+  "FAILURE",
+];
 
 const ERROR_CATEGORIES: ErrorCategory[] = [
   "VALIDATION_ERROR",

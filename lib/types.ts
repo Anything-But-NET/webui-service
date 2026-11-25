@@ -29,7 +29,15 @@ export type OperatorAuthority =
   | "USERS"
   | "OPERATORS"
   | "ANALYTICS"
-  | "PROMPTS";
+  | "PROMPTS"
+  | "ESCALATIONS";
+
+export type EscalationResolutionStatus =
+  | "PENDING"
+  | "IN_PROGRESS"
+  | "RESOLVED"
+  | "CLOSED"
+  | "CANCELLED";
 
 export type OperatorStatus = "ACTIVE" | "BLOCKED";
 
@@ -80,8 +88,45 @@ export interface GenerationLogItem {
   confidence_score: number | null;
   latency_ms: number | null;
   prompt_version_id: string | null;
+  escalation_id?: string | null;
+  resolution_status?: EscalationResolutionStatus | null;
   created_at: string;
   updated_at: string | null;
+}
+
+export interface EscalationCitation {
+  title: string | null;
+  url: string | null;
+  document_id: string;
+  chunk_id: string;
+  score: number;
+}
+
+export interface EscalationItem {
+  id: string;
+  query_id: string;
+  requester_email: string;
+  question_text: string;
+  status: EscalationResolutionStatus;
+  channel: ChatChannel | null;
+  reason_code: QuestionOutcomeReasonCode | null;
+  confidence_score: number | null;
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+}
+
+export interface EscalationStatusHistoryItem {
+  id: string;
+  from_status: EscalationResolutionStatus | null;
+  to_status: EscalationResolutionStatus;
+  changed_by_operator_id: string | null;
+  changed_at: string;
+}
+
+export interface EscalationDetail extends EscalationItem {
+  source_references: EscalationCitation[];
+  status_history: EscalationStatusHistoryItem[];
 }
 
 export interface DocumentMetadataItem {

@@ -89,45 +89,51 @@ export function PaginationBar({
         <span className="text-foreground">{totalElements}</span>
       </div>
 
-      <Pagination className="mx-0 w-auto justify-end">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href={hasPrev ? buildPageHref(page - 1) : "#"}
-              onClick={(e) => navigateTo(e, page - 1, !hasPrev)}
-              aria-disabled={!hasPrev}
-              className={!hasPrev ? "pointer-events-none opacity-40" : undefined}
-            />
-          </PaginationItem>
+      {effectiveTotalPages > 1 && (
+        <Pagination className="mx-0 w-auto justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={hasPrev ? buildPageHref(page - 1) : "#"}
+                onClick={(e) => navigateTo(e, page - 1, !hasPrev)}
+                aria-disabled={!hasPrev}
+                className={
+                  !hasPrev ? "pointer-events-none opacity-40" : undefined
+                }
+              />
+            </PaginationItem>
 
-          {visiblePages.map((item, idx) =>
-            item === "ellipsis" ? (
-              <PaginationItem key={`ellipsis-${idx}`}>
-                <PaginationEllipsis />
-              </PaginationItem>
-            ) : (
-              <PaginationItem key={item}>
-                <PaginationLink
-                  href={buildPageHref(item)}
-                  isActive={item === page}
-                  onClick={(e) => navigateTo(e, item)}
-                >
-                  {item + 1}
-                </PaginationLink>
-              </PaginationItem>
-            )
-          )}
+            {visiblePages.map((item, idx) =>
+              item === "ellipsis" ? (
+                <PaginationItem key={`ellipsis-${idx}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={item}>
+                  <PaginationLink
+                    href={buildPageHref(item)}
+                    isActive={item === page}
+                    onClick={(e) => navigateTo(e, item)}
+                  >
+                    {item + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
 
-          <PaginationItem>
-            <PaginationNext
-              href={hasNext ? buildPageHref(page + 1) : "#"}
-              onClick={(e) => navigateTo(e, page + 1, !hasNext)}
-              aria-disabled={!hasNext}
-              className={!hasNext ? "pointer-events-none opacity-40" : undefined}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            <PaginationItem>
+              <PaginationNext
+                href={hasNext ? buildPageHref(page + 1) : "#"}
+                onClick={(e) => navigateTo(e, page + 1, !hasNext)}
+                aria-disabled={!hasNext}
+                className={
+                  !hasNext ? "pointer-events-none opacity-40" : undefined
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

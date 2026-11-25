@@ -20,6 +20,8 @@ export default function Navbar() {
 
   const authorities = new Set(user?.authorities ?? []);
   const canAnalytics = authorities.has("ANALYTICS");
+  const canEscalations =
+    authorities.has("ESCALATIONS") || authorities.has("OPERATORS");
   const canPrompts = authorities.has("PROMPTS");
   const canMetadata = authorities.has("METADATA");
   const canLogs = authorities.has("LOGS");
@@ -49,6 +51,17 @@ export default function Navbar() {
                       render={<Link href="/analytics" />}
                     >
                       Analytics
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )}
+
+                {canEscalations && (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      active={pathname.startsWith("/escalations")}
+                      render={<Link href="/escalations" />}
+                    >
+                      Escalations
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 )}

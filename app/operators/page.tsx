@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchOperators } from "@/lib/core-api";
+import { getServerSession } from "@/lib/auth";
 import { formatDateTime, parsePageParam, parseSizeParam } from "@/lib/format";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -30,13 +31,17 @@ async function OperatorsContent({
   const page = parsePageParam(sp.page, 0);
   const size = parseSizeParam(sp.size, 20);
 
-  const result = await fetchOperators(page, size);
+  const [result, session] = await Promise.all([
+    fetchOperators(page, size),
+    getServerSession(),
+  ]);
   if (!result.ok) {
     if (result.status === 401) redirect("/login");
     return <ErrorPanel status={result.status} message={result.message} />;
   }
 
   const data = result.data;
+  const currentEmail = session.user?.email;
 
   return (
     <div className="flex flex-col gap-6">
@@ -68,7 +73,12 @@ async function OperatorsContent({
               data.items.map((op) => (
                 <TableRow key={op.id}>
                   <TableCell className="px-4 font-mono text-xs text-foreground">
-                    {op.email}
+                    <span>{op.email}</span>
+                    {currentEmail === op.email && (
+                      <span className="ml-2 border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        You
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="px-4">
                     <OperatorStatusBadge status={op.status} />

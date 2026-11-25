@@ -48,7 +48,7 @@ function pctNum(part: number, total: number): number {
 }
 
 function formatMs(value: number | null): string {
-  if (value == null) return "—";
+  if (value == null) return "Not recorded";
   return `${Math.round(value).toLocaleString("en-US")} ms`;
 }
 
@@ -81,6 +81,14 @@ export function AnalyticsDashboardView({
 
   return (
     <div className="flex flex-col gap-4">
+      {total > 0 && total < 20 && (
+        <div className="border border-border bg-muted/30 px-3 py-2 font-mono text-xs text-muted-foreground">
+          Small sample: {total} {total === 1 ? "question" : "questions"} in
+          this scope ({totalConfidenceScored} scored). Percentages and
+          percentiles may fluctuate.
+        </div>
+      )}
+
       {/* KPI Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
@@ -119,8 +127,13 @@ export function AnalyticsDashboardView({
             <div className="font-mono text-3xl font-semibold tabular-nums text-foreground">
               {data.avg_confidence_score != null
                 ? data.avg_confidence_score.toFixed(3)
-                : "—"}
+                : "Not scored"}
             </div>
+            {total > 0 && (
+              <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                {totalConfidenceScored} of {total} scored
+              </p>
+            )}
           </CardContent>
         </Card>
 

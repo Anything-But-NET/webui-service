@@ -7,6 +7,7 @@ import {
   BarChart3,
   FileCode2,
   FileText,
+  LifeBuoy,
   Shield,
   Sparkles,
   Users,
@@ -24,6 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getServerSession } from "@/lib/auth";
+import { fetchQuestionOutcomeAnalytics } from "@/lib/core-api";
 import type { OperatorAuthority } from "@/lib/types";
 
 interface DashboardModule {
@@ -42,6 +44,14 @@ const MODULES: DashboardModule[] = [
     description:
       "Monitor answer rates, safe no-answers, escalations, latency percentiles, and daily trends.",
     icon: BarChart3,
+  },
+  {
+    title: "Escalations",
+    href: "/escalations",
+    authority: "ESCALATIONS",
+    description:
+      "Review user-confirmed escalations, inspect RAG citations, and update resolution statuses.",
+    icon: LifeBuoy,
   },
   {
     title: "Prompt Versions",
@@ -101,7 +111,24 @@ async function DashboardOverview() {
 
   const user = session.user;
   const granted = new Set(user.authorities);
-  const availableModules = MODULES.filter((m) => granted.has(m.authority));
+  const availableModules = MODULES.filter(
+    (m) =>
+      granted.has(m.authority) ||
+      (m.authority === "ESCALATIONS" && granted.has("OPERATORS"))
+  );
+
+  const analyticsResult = granted.has("ANALYTICS")
+    ? await fetchQuestionOutcomeAnalytics({})
+    : null;
+  const analytics =
+    analyticsResult && analyticsResult.ok ? analyticsResult.data : null;
+  const answeredCount =
+    analytics?.outcome_counts.find((item) => item.outcome === "ANSWERED")
+      ?.count ?? 0;
+  const answerRate =
+    analytics && analytics.total_questions > 0
+      ? `${((answeredCount / analytics.total_questions) * 100).toFixed(1)}%`
+      : "—";
 
   return (
     <div className="flex flex-col gap-6">
@@ -129,6 +156,67 @@ async function DashboardOverview() {
           )}
         </CardContent>
       </Card>
+
+      {analytics && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-1">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                Total Questions
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+                {analytics.total_questions.toLocaleString("en-US")}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-1">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                Answer Rate
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+                {answerRate}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-1">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                Avg Confidence
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+                {analytics.avg_confidence_score != null
+                  ? analytics.avg_confidence_score.toFixed(3)
+                  : "Not scored"}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-1">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                Latency (Avg / P95)
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-xl font-semibold tabular-nums text-foreground">
+                {analytics.avg_latency_ms != null
+                  ? `${Math.round(analytics.avg_latency_ms).toLocaleString("en-US")} ms`
+                  : "Not recorded"}
+                <span className="text-muted-foreground font-normal mx-1.5">/</span>
+                {analytics.p95_latency_ms != null
+                  ? `${Math.round(analytics.p95_latency_ms).toLocaleString("en-US")} ms`
+                  : "Not recorded"}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {availableModules.length === 0 ? (
         <Card>

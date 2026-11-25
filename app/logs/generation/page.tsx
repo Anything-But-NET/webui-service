@@ -131,7 +131,17 @@ async function GenerationLogsContent({
                     <ChatChannelBadge channel={log.channel} />
                   </TableCell>
                   <TableCell className="px-4">
-                    <GenerationOutcomeBadge outcome={log.outcome} />
+                    {log.escalation_id ? (
+                      <Link
+                        href={`/escalations/${log.escalation_id}`}
+                        className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                        title="View escalation"
+                      >
+                        <GenerationOutcomeBadge outcome={log.outcome} />
+                      </Link>
+                    ) : (
+                      <GenerationOutcomeBadge outcome={log.outcome} />
+                    )}
                   </TableCell>
                   <TableCell className="px-4">
                     <ReasonCodeBadge reasonCode={log.reason_code} />
@@ -139,15 +149,23 @@ async function GenerationLogsContent({
                   <TableCell className="px-4">
                     <ErrorCategoryBadge category={log.error_category} />
                   </TableCell>
-                  <TableCell className="px-4 font-mono text-xs text-foreground tabular-nums">
-                    {log.confidence_score != null
-                      ? log.confidence_score.toFixed(3)
-                      : "—"}
+                  <TableCell className="px-4 font-mono text-xs tabular-nums">
+                    {log.confidence_score != null ? (
+                      <span className="text-foreground">
+                        {log.confidence_score.toFixed(3)}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">Not scored</span>
+                    )}
                   </TableCell>
-                  <TableCell className="px-4 font-mono text-xs text-foreground tabular-nums">
-                    {log.latency_ms != null
-                      ? `${log.latency_ms.toLocaleString("en-US")} ms`
-                      : "—"}
+                  <TableCell className="px-4 font-mono text-xs tabular-nums">
+                    {log.latency_ms != null ? (
+                      <span className="text-foreground">
+                        {log.latency_ms.toLocaleString("en-US")} ms
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">Not recorded</span>
+                    )}
                   </TableCell>
                   <TableCell className="px-4 font-mono text-xs">
                     {log.prompt_version_id ? (

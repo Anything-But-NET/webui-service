@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import type {
   ChatChannel,
   ErrorCategory,
+  EscalationResolutionStatus,
   GenerationOutcome,
   OperatorAuthority,
   OperatorStatus,
@@ -46,7 +47,7 @@ const SYNC_STATUS_TONE: Record<SyncStatus, Tone> = {
   COMPLETED: "success",
   IN_PROGRESS: "info",
   FAILED_FETCH: "destructive",
-  FAILED_PARSE: "warning",
+  FAILED_PARSE: "destructive",
   FAILED_STORAGE: "destructive",
 };
 
@@ -129,4 +130,22 @@ export function AuthorityBadge({
   authority: OperatorAuthority;
 }) {
   return <StatusBadge label={authority} tone="brand" />;
+}
+
+const ESCALATION_STATUS_TONE: Record<EscalationResolutionStatus, Tone> = {
+  PENDING: "warning",
+  IN_PROGRESS: "info",
+  RESOLVED: "success",
+  CLOSED: "muted",
+  CANCELLED: "destructive",
+};
+
+export function EscalationStatusBadge({
+  status,
+}: {
+  status: EscalationResolutionStatus;
+}) {
+  return (
+    <StatusBadge label={status} tone={ESCALATION_STATUS_TONE[status]} />
+  );
 }

@@ -4,6 +4,9 @@ import type {
   DashboardErrorResponse,
   DocumentMetadataItem,
   ErrorCategory,
+  EscalationDetail,
+  EscalationItem,
+  EscalationResolutionStatus,
   GenerationLogItem,
   GenerationOutcome,
   IngestionLogItem,
@@ -157,5 +160,24 @@ export function fetchUsers(page = 0, size = 20) {
 export function fetchOperators(page = 0, size = 20) {
   return coreGet<PageResponse<OperatorItem>>(
     `/api/v1/dash/operators${buildQuery({ page, size })}`
+  );
+}
+
+export function fetchEscalations(params: {
+  page?: number;
+  size?: number;
+  status?: EscalationResolutionStatus;
+  query_id?: string;
+  from?: string;
+  to?: string;
+}) {
+  return coreGet<PageResponse<EscalationItem>>(
+    `/api/v1/dash/escalations${buildQuery(params)}`
+  );
+}
+
+export function fetchEscalationDetail(id: string) {
+  return coreGet<EscalationDetail>(
+    `/api/v1/dash/escalations/${encodeURIComponent(id)}`
   );
 }

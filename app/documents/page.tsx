@@ -42,8 +42,8 @@ async function DocumentsContent({
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:bg-muted/40">
-              <TableHead className="px-4">Document ID</TableHead>
               <TableHead className="px-4">Title</TableHead>
+              <TableHead className="px-4">Document ID</TableHead>
               <TableHead className="px-4">Source</TableHead>
               <TableHead className="px-4">Last Updated</TableHead>
               <TableHead className="px-4">Last Sync</TableHead>
@@ -63,13 +63,13 @@ async function DocumentsContent({
             ) : (
               data.items.map((doc) => (
                 <TableRow key={doc.document_id}>
-                  <TableCell className="px-4 font-mono text-xs text-foreground">
-                    {doc.document_id}
-                  </TableCell>
-                  <TableCell className="px-4 max-w-xs truncate">
+                  <TableCell className="px-4 max-w-xs truncate" title={doc.title ?? undefined}>
                     {doc.title ?? (
                       <span className="text-muted-foreground">—</span>
                     )}
+                  </TableCell>
+                  <TableCell className="px-4 font-mono text-xs text-muted-foreground">
+                    {doc.document_id}
                   </TableCell>
                   <TableCell className="px-4 font-mono text-xs text-muted-foreground">
                     {doc.source_system ?? "—"}

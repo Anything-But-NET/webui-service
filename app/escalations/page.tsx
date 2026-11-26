@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 import { ErrorPanel } from "@/components/error-panel";
 import { EscalationsFilterBar } from "@/components/escalations-filter-bar";
 import { PageHeader, TableSkeleton } from "@/components/page-shell";
@@ -10,6 +11,8 @@ import {
   EscalationStatusBadge,
   ReasonCodeBadge,
 } from "@/components/status-badge";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -51,24 +54,32 @@ async function EscalationsContent({
       ? (rawStatus as EscalationResolutionStatus)
       : undefined;
   const query_id = singleParam(sp.query_id);
+  const from = singleParam(sp.from);
+  const to = singleParam(sp.to);
 
-  const result = await fetchEscalations({ page, size, status, query_id });
+  const result = await fetchEscalations({ page, size, status, query_id, from, to });
   if (!result.ok) {
     if (result.status === 401) redirect("/login");
     return <ErrorPanel status={result.status} message={result.message} />;
   }
 
   const data = result.data;
-  const filterKey = `${status ?? ""}|${query_id ?? ""}`;
+  const filterKey = `${status ?? ""}|${query_id ?? ""}|${from ?? ""}|${to ?? ""}`;
+  const hasActiveFilters = Boolean(status || query_id || from || to);
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Escalations" />
+      <PageHeader
+        title="Escalations"
+        description="Review user-confirmed escalations, inspect context, and prepare expert answers."
+      />
 
       <EscalationsFilterBar
         key={filterKey}
         initialStatus={status}
         initialQueryId={query_id}
+        initialFrom={from}
+        initialTo={to}
         size={size}
       />
 
@@ -79,20 +90,36 @@ async function EscalationsContent({
               <TableHead className="px-4">Question</TableHead>
               <TableHead className="px-4">Requester</TableHead>
               <TableHead className="px-4">Status</TableHead>
+              <TableHead className="px-4">Response</TableHead>
               <TableHead className="px-4">Channel</TableHead>
               <TableHead className="px-4">Reason</TableHead>
               <TableHead className="px-4">Confidence</TableHead>
               <TableHead className="px-4">Created</TableHead>
+              <TableHead className="px-4 text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.items.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={9}
                   className="px-4 py-10 text-center text-muted-foreground"
                 >
-                  No escalations match the current filters.
+                  <div className="flex flex-col items-center gap-2">
+                    <span>
+                      {hasActiveFilters
+                        ? "No escalations match the current filters."
+                        : "The escalation queue is empty."}
+                    </span>
+                    {hasActiveFilters && (
+                      <Link
+                        href="/escalations"
+                        className="font-mono text-xs text-brand hover:underline"
+                      >
+                        Clear filters
+                      </Link>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -116,6 +143,28 @@ async function EscalationsContent({
                   <TableCell className="px-4">
                     <EscalationStatusBadge status={item.status} />
                   </TableCell>
+                  <TableCell className="px-4 max-w-xs">
+                    {item.resolution_text ? (
+                      <div className="flex flex-col gap-0.5">
+                        <Badge
+                          variant="outline"
+                          className="w-fit font-mono border-success/40 bg-success/10 text-success px-1.5 py-0.5"
+                        >
+                          Recorded
+                        </Badge>
+                        <span
+                          className="text-xs text-muted-foreground truncate"
+                          title={item.resolution_text}
+                        >
+                          {item.resolution_text}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="font-mono text-xs text-muted-foreground">
+                        Awaiting answer
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell className="px-4">
                     <ChatChannelBadge channel={item.channel} />
                   </TableCell>
@@ -133,6 +182,17 @@ async function EscalationsContent({
                   </TableCell>
                   <TableCell className="px-4 font-mono text-xs text-muted-foreground whitespace-nowrap">
                     {formatDateTime(item.created_at)}
+                  </TableCell>
+                  <TableCell className="px-4 text-right whitespace-nowrap">
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      render={<Link href={`/escalations/${item.id}`} />}
+                      className="gap-1"
+                    >
+                      <span>{item.resolution_text ? "View" : "Answer"}</span>
+                      <ArrowRight className="size-3" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

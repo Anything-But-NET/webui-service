@@ -108,6 +108,9 @@ export interface EscalationItem {
   requester_email: string;
   question_text: string;
   status: EscalationResolutionStatus;
+  resolution_text: string | null;
+  resolution_updated_at: string | null;
+  resolved_by_operator_id: string | null;
   channel: ChatChannel | null;
   reason_code: QuestionOutcomeReasonCode | null;
   confidence_score: number | null;

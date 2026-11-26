@@ -23,10 +23,7 @@ const NEXT_ACTIONS: Record<
     { status: "CLOSED", label: "Close", variant: "outline" },
     { status: "CANCELLED", label: "Cancel", variant: "destructive" },
   ],
-  RESOLVED: [
-    { status: "CLOSED", label: "Close", variant: "outline" },
-    { status: "IN_PROGRESS", label: "Reopen", variant: "outline" },
-  ],
+  RESOLVED: [{ status: "CLOSED", label: "Close", variant: "outline" }],
   CLOSED: [],
   CANCELLED: [],
 };

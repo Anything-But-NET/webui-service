@@ -29,6 +29,7 @@ const VALID_AUTHORITIES = new Set<OperatorAuthority>([
   "OPERATORS",
   "ANALYTICS",
   "PROMPTS",
+  "ESCALATIONS",
 ]);
 
 function baseCookieOptions(maxAge: number): Partial<ResponseCookie> {

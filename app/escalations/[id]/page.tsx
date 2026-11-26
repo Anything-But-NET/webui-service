@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { CopyButton } from "@/components/copy-button";
 import { ErrorPanel } from "@/components/error-panel";
+import { EscalationResponseForm } from "@/components/escalation-response-form";
 import { EscalationStatusActions } from "@/components/escalation-status-actions";
 import { TableSkeleton } from "@/components/page-shell";
 import {
@@ -41,9 +42,15 @@ async function EscalationDetailContent({ id }: { id: string }) {
             </h1>
             <EscalationStatusBadge status={esc.status} />
           </div>
-          <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
-            <span>Query ID: {esc.query_id}</span>
-            <CopyButton value={esc.query_id} label="Copy query ID" />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span>Query ID: {esc.query_id}</span>
+              <CopyButton value={esc.query_id} label="Copy query ID" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Escalation ID: {esc.id.slice(0, 8)}</span>
+              <CopyButton value={esc.id} label="Copy escalation ID" />
+            </div>
           </div>
         </div>
 
@@ -102,6 +109,12 @@ async function EscalationDetailContent({ id }: { id: string }) {
                 {formatDateTime(esc.created_at)}
               </span>
             </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Updated</span>
+              <span className="text-foreground">
+                {formatDateTime(esc.updated_at)}
+              </span>
+            </div>
             {esc.resolved_at && (
               <div className="flex items-center justify-between gap-2">
                 <span className="text-muted-foreground">Resolved</span>
@@ -113,6 +126,14 @@ async function EscalationDetailContent({ id }: { id: string }) {
           </CardContent>
         </Card>
       </div>
+
+      <EscalationResponseForm
+        escalationId={esc.id}
+        currentStatus={esc.status}
+        initialResolutionText={esc.resolution_text}
+        resolutionUpdatedAt={esc.resolution_updated_at}
+        resolvedByOperatorId={esc.resolved_by_operator_id}
+      />
 
       <Card>
         <CardHeader className="pb-2">

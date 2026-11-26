@@ -8,6 +8,7 @@ import { PaginationBar } from "@/components/pagination-bar";
 import {
   ChatChannelBadge,
   ErrorCategoryBadge,
+  EscalationStatusBadge,
   GenerationOutcomeBadge,
   ReasonCodeBadge,
 } from "@/components/status-badge";
@@ -138,6 +139,9 @@ async function GenerationLogsContent({
                         title="View escalation"
                       >
                         <GenerationOutcomeBadge outcome={log.outcome} />
+                        {log.resolution_status && (
+                          <EscalationStatusBadge status={log.resolution_status} />
+                        )}
                       </Link>
                     ) : (
                       <GenerationOutcomeBadge outcome={log.outcome} />

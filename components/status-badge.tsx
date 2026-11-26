@@ -96,12 +96,14 @@ const CHANNEL_TONE: Record<ChatChannel, Tone> = {
 export function ChatChannelBadge({
   channel,
 }: {
-  channel: ChatChannel | null;
+  channel: ChatChannel | string | null;
 }) {
   if (!channel) {
     return <span className="text-xs text-muted-foreground font-mono">—</span>;
   }
-  return <StatusBadge label={channel} tone={CHANNEL_TONE[channel]} />;
+  const normalized = channel.toUpperCase() as ChatChannel;
+  const tone = CHANNEL_TONE[normalized] ?? "muted";
+  return <StatusBadge label={normalized} tone={tone} />;
 }
 
 export function ErrorCategoryBadge({
